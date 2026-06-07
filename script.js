@@ -29,71 +29,58 @@ const questionsData = [
 const questionsDiv = document.getElementById("questions");
 const submitBtn = document.getElementById("submit");
 const scoreDiv = document.getElementById("score");
-
 let progress =
   JSON.parse(sessionStorage.getItem("progress")) || {};
-
 function renderQuestions() {
   questionsDiv.innerHTML = "";
-
   questionsData.forEach((q, i) => {
     const div = document.createElement("div");
-
     const title = document.createElement("p");
     title.textContent = q.question;
     div.appendChild(title);
-
     q.choices.forEach(choice => {
       const label = document.createElement("label");
-
       const radio = document.createElement("input");
       radio.type = "radio";
       radio.name = "q" + i;
       radio.value = choice;
-
       if (progress["q" + i] === choice) {
         radio.checked = true;
+		radio.setAttribute("checked", "true");
       }
-
       radio.addEventListener("change", () => {
-        progress["q" + i] = choice;
-        sessionStorage.setItem(
-          "progress",
-          JSON.stringify(progress)
-        );
-      });
-
+    progress["q" + i] = choice;
+    sessionStorage.setItem(
+        "progress",
+        JSON.stringify(progress)
+    );
+    document
+      .querySelectorAll(`input[name="q${i}"]`)
+      .forEach(r => r.removeAttribute("checked"));
+    radio.setAttribute("checked", "true");
+});
       label.appendChild(radio);
       label.appendChild(document.createTextNode(choice));
-
       div.appendChild(label);
       div.appendChild(document.createElement("br"));
     });
-
     questionsDiv.appendChild(div);
   });
 }
-
 const savedScore = localStorage.getItem("score");
-
 if (savedScore !== null) {
   scoreDiv.textContent =
     `Your score is ${savedScore} out of 5.`;
 }
-
 submitBtn.addEventListener("click", () => {
   let score = 0;
-
   questionsData.forEach((q, i) => {
     if (progress["q" + i] === q.answer) {
       score++;
     }
   });
-
   scoreDiv.textContent =
     `Your score is ${score} out of 5.`;
-
   localStorage.setItem("score", score);
 });
-
 renderQuestions();
